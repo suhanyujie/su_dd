@@ -82,7 +82,12 @@ PHP_FUNCTION(confirm_su_dd_compiled)
 //c实现函数 su_test
 PHP_FUNCTION(su_test)
 {
+	double f;
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "d", &f) == FAILURE)
+	{
 
+		return;
+	}
 }
 
 
