@@ -45,11 +45,8 @@ PHP_INI_END()
 /* }}} */
 //传入参数的注册/声明
 ZEND_BEGIN_ARG_INFO_EX(arginfo_su_test, 0, 0, 1)
-    ZEND_ARG_INFO(0, param1)
+ZEND_ARG_INFO(0, param1)
 ZEND_END_ARG_INFO()
-
-
-
 
 /* Remove the following function when you have successfully modified config.m4
    so that your module can be compiled into PHP, it exists only for testing
@@ -65,7 +62,8 @@ PHP_FUNCTION(confirm_su_dd_compiled)
 	size_t arg_len, len;
 	zend_string *strg;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "s", &arg, &arg_len) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "s", &arg, &arg_len) == FAILURE)
+	{
 		return;
 	}
 
@@ -79,18 +77,21 @@ PHP_FUNCTION(confirm_su_dd_compiled)
    function definition, where the functions purpose is also documented. Please
    follow this convention for the convenience of others editing your code.
 */
+static double php_su_test(double f)
+{
+	return ((double)5/9)*(double)(f-32);
+}
+
 //c实现函数 su_test
 PHP_FUNCTION(su_test)
 {
 	double f;
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "d", &f) == FAILURE)
 	{
-
 		return;
 	}
+	RETURN_DOUBLE(php_su_test(f));
 }
-
-
 
 /* {{{ php_su_dd_init_globals
  */
@@ -160,12 +161,9 @@ PHP_MINFO_FUNCTION(su_dd)
 }
 /* }}} */
 
-void zif_su_test(zend_execute_data *execute_data,zval *return_value)
+void zif_su_test(zend_execute_data *execute_data, zval *return_value)
 {
-
 }
-
-
 
 /* {{{ su_dd_functions[]
  *
@@ -174,7 +172,7 @@ void zif_su_test(zend_execute_data *execute_data,zval *return_value)
 const zend_function_entry su_dd_functions[] = {
 	PHP_FE(su_test, arginfo_su_test)
 	//PHP_FE(confirm_su_dd_compiled,	NULL)		/* For testing, remove later. */
-	PHP_FE_END	/* Must be the last line in su_dd_functions[] */
+	PHP_FE_END /* Must be the last line in su_dd_functions[] */
 };
 /* }}} */
 
@@ -186,19 +184,12 @@ zend_module_entry su_dd_module_entry = {
 	su_dd_functions,
 	PHP_MINIT(su_dd),
 	PHP_MSHUTDOWN(su_dd),
-	PHP_RINIT(su_dd),		/* Replace with NULL if there's nothing to do at request start */
-	PHP_RSHUTDOWN(su_dd),	/* Replace with NULL if there's nothing to do at request end */
+	PHP_RINIT(su_dd),	 /* Replace with NULL if there's nothing to do at request start */
+	PHP_RSHUTDOWN(su_dd), /* Replace with NULL if there's nothing to do at request end */
 	PHP_MINFO(su_dd),
 	PHP_SU_DD_VERSION,
-	STANDARD_MODULE_PROPERTIES
-};
+	STANDARD_MODULE_PROPERTIES};
 /* }}} */
-
-
-
-
-
-
 
 #ifdef COMPILE_DL_SU_DD
 #ifdef ZTS
