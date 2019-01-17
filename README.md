@@ -9,3 +9,4 @@
 ## 学习资料
 * 学习写扩展资料（英文） http://www.phpinternalsbook.com/php7/
 * php源码 https://github.com/php/php-src
+* PHP7内核剖析 https://www.kancloud.cn/nickbai/php7

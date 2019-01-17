@@ -108,7 +108,7 @@ PHP_FUNCTION(su_test_reverse)
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "d", &c) ==  FAILURE) {
 		return;
 	}
-	RETURN_DOUBLE(su_test_reverse(c));
+	RETURN_DOUBLE(php_su_test_reverse(c));
 }
 
 /* {{{ php_su_dd_init_globals
