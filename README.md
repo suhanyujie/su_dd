@@ -1,6 +1,7 @@
 # su_dd
 
 ## 文档目录
+* [准备阶段](docs/prepare.md)
 * [参数](docs/参数.md)
 
 
