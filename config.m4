@@ -15,6 +15,9 @@ dnl Otherwise use enable:
 
 dnl PHP_ARG_ENABLE(su_dd, whether to enable su_dd support,
 dnl Make sure that the comment is aligned:
+dnl [  --enable-su_dd           Enable su_dd support])
+
+PHP_ARG_ENABLE(su_dd, whether to enable su_dd support,
 [  --enable-su_dd           Enable su_dd support])
 
 if test "$PHP_SU_DD" != "no"; then

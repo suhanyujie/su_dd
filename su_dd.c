@@ -48,6 +48,10 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_su_test, 0, 0, 1)
 ZEND_ARG_INFO(0, param1)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_su_test_reverse, 0, 0, 1)
+ZEND_ARG_INFO(0, param1)
+ZEND_END_ARG_INFO()
+
 /* Remove the following function when you have successfully modified config.m4
    so that your module can be compiled into PHP, it exists only for testing
    purposes. */
@@ -79,7 +83,12 @@ PHP_FUNCTION(confirm_su_dd_compiled)
 */
 static double php_su_test(double f)
 {
-	return ((double)5/9)*(double)(f-32);
+	return ((double)5 / 9) * (double)(f - 32);
+}
+
+static double php_su_test_reverse(double c)
+{
+	return c * ((double)9 / 5) + 32;
 }
 
 //c实现函数 su_test
@@ -91,6 +100,15 @@ PHP_FUNCTION(su_test)
 		return;
 	}
 	RETURN_DOUBLE(php_su_test(f));
+}
+
+PHP_FUNCTION(su_test_reverse)
+{
+	double c;
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "d", &c) ==  FAILURE) {
+		return;
+	}
+	RETURN_DOUBLE(su_test_reverse(c));
 }
 
 /* {{{ php_su_dd_init_globals
@@ -161,9 +179,6 @@ PHP_MINFO_FUNCTION(su_dd)
 }
 /* }}} */
 
-void zif_su_test(zend_execute_data *execute_data, zval *return_value)
-{
-}
 
 /* {{{ su_dd_functions[]
  *
@@ -171,6 +186,7 @@ void zif_su_test(zend_execute_data *execute_data, zval *return_value)
  */
 const zend_function_entry su_dd_functions[] = {
 	PHP_FE(su_test, arginfo_su_test)
+	PHP_FE(su_test_reverse, arginfo_su_test_reverse)
 	//PHP_FE(confirm_su_dd_compiled,	NULL)		/* For testing, remove later. */
 	PHP_FE_END /* Must be the last line in su_dd_functions[] */
 };
