@@ -1,4 +1,5 @@
 # su_dd
+* 学习写PHP扩展
 
 ## 文档目录
 * [准备阶段](docs/prepare.md)
