@@ -27,9 +27,15 @@
 #include "ext/standard/info.h"
 #include "php_su_dd.h"
 
+#include "zend.h"
+
 /* If you declare any globals in php_su_dd.h uncomment this:
 ZEND_DECLARE_MODULE_GLOBALS(su_dd)
 */
+#define TEMP_CONVERTER_TO_FAHRENHEIT 2
+#define TEMP_CONVERTER_TO_CELSIUS 1
+
+#define IS_BOOL		3
 
 /* True global resources - no need for thread safety here */
 static int le_su_dd;
@@ -49,6 +55,15 @@ ZEND_ARG_INFO(0, param1)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_su_test_reverse, 0, 0, 1)
+ZEND_ARG_INFO(0, param1)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_temperature_converter, 0, 0, 1)
+ZEND_ARG_INFO(0, t)
+ZEND_ARG_INFO(0, mode)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_su_getType, 0, 0, 1)
 ZEND_ARG_INFO(0, param1)
 ZEND_END_ARG_INFO()
 
@@ -91,6 +106,16 @@ static double php_su_test_reverse(double c)
 	return c * ((double)9 / 5) + 32;
 }
 
+PHP_FUNCTION(temperature_converter)
+{
+	double t;
+	zend_long mode = TEMP_CONVERTER_TO_CELSIUS;
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "d|l", &t, &mode) == FAILURE)
+	{
+		return;
+	}
+}
+
 //c实现函数 su_test
 PHP_FUNCTION(su_test)
 {
@@ -105,10 +130,53 @@ PHP_FUNCTION(su_test)
 PHP_FUNCTION(su_test_reverse)
 {
 	double c;
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "d", &c) ==  FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "d", &c) == FAILURE)
+	{
 		return;
 	}
 	RETURN_DOUBLE(php_su_test_reverse(c));
+}
+
+PHP_FUNCTION(su_getType)
+{
+	zval *param1;
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &param1) == FAILURE)
+	{
+		return;
+	}
+	//php_printf("type is :%c\n", param1->u1.v.type);
+	switch (Z_TYPE_P(param1))
+	{
+	case IS_NULL:
+		php_printf("null\n");
+		break;
+	case IS_BOOL:
+		php_printf("bool:%s\n", Z_LVAL_P(param1) ? "true" : "false");
+		break;
+	case IS_LONG:
+		php_printf("long is:%d\n", Z_LVAL_P(param1));
+		break;
+	case IS_DOUBLE:
+		php_printf("double is :%.2f...\n", Z_LVAL_P(param1));
+		break;
+	case IS_STRING:
+		php_printf("string is :");
+		php_write(Z_STRVAL_P(param1), Z_STRLEN_P(param1));
+		php_printf("\n");
+		break;
+	case IS_RESOURCE:
+		php_printf("resource...\n");
+		break;
+	case IS_ARRAY:
+		php_printf("array...\n");
+		break;
+	case IS_OBJECT:
+		php_printf("object...\n");
+		break;
+	default:
+		php_printf("unknow...\n");
+		break;
+	}
 }
 
 /* {{{ php_su_dd_init_globals
@@ -129,6 +197,10 @@ PHP_MINIT_FUNCTION(su_dd)
 	/* If you have INI entries, uncomment these lines
 	REGISTER_INI_ENTRIES();
 	*/
+
+	REGISTER_LONG_CONSTANT("TEMP_CONVERTER_TO_CELSIUS", TEMP_CONVERTER_TO_CELSIUS, CONST_CS | CONST_PERSISTENT);
+	REGISTER_LONG_CONSTANT("TEMP_CONVERTER_TO_FAHRENHEIT", TEMP_CONVERTER_TO_FAHRENHEIT, CONST_CS | CONST_PERSISTENT);
+
 	return SUCCESS;
 }
 /* }}} */
@@ -179,16 +251,17 @@ PHP_MINFO_FUNCTION(su_dd)
 }
 /* }}} */
 
-
 /* {{{ su_dd_functions[]
  *
  * Every user visible function must have an entry in su_dd_functions[].
  */
 const zend_function_entry su_dd_functions[] = {
-	PHP_FE(su_test, arginfo_su_test)
-	PHP_FE(su_test_reverse, arginfo_su_test_reverse)
-	//PHP_FE(confirm_su_dd_compiled,	NULL)		/* For testing, remove later. */
-	PHP_FE_END /* Must be the last line in su_dd_functions[] */
+	PHP_FE(confirm_su_dd_compiled, NULL)						 /* For testing, remove later. */
+	PHP_FE(su_test, arginfo_su_test)							 /* */
+	PHP_FE(su_test_reverse, arginfo_su_test_reverse)			 /* */
+	PHP_FE(temperature_converter, arginfo_temperature_converter) /* */
+	PHP_FE(su_getType, arginfo_su_getType)						 /* */
+	PHP_FE_END													 /* Must be the last line in su_dd_functions[] */
 };
 /* }}} */
 

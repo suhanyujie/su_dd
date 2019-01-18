@@ -10,3 +10,4 @@
 * 学习写扩展资料（英文） http://www.phpinternalsbook.com/php7/
 * php源码 https://github.com/php/php-src
 * PHP7内核剖析 https://www.kancloud.cn/nickbai/php7
+* 下阶段写一个链表的扩展 https://www.jianshu.com/p/98eec8b08a8e
