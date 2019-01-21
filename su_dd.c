@@ -35,8 +35,6 @@ ZEND_DECLARE_MODULE_GLOBALS(su_dd)
 #define TEMP_CONVERTER_TO_FAHRENHEIT 2
 #define TEMP_CONVERTER_TO_CELSIUS 1
 
-#define IS_BOOL		3
-
 /* True global resources - no need for thread safety here */
 static int le_su_dd;
 
@@ -144,13 +142,16 @@ PHP_FUNCTION(su_getType)
 	{
 		return;
 	}
-	//php_printf("type is :%c\n", param1->u1.v.type);
+	//php_printf("type is :%d\n", Z_TYPE_P(param1));
 	switch (Z_TYPE_P(param1))
 	{
 	case IS_NULL:
 		php_printf("null\n");
 		break;
-	case IS_BOOL:
+	case IS_TRUE://布尔值的判断需要分为IS_TRUE 和IS_FALSE
+		php_printf("bool:%s\n", Z_LVAL_P(param1) ? "true" : "false");
+		break;
+	case IS_FALSE:
 		php_printf("bool:%s\n", Z_LVAL_P(param1) ? "true" : "false");
 		break;
 	case IS_LONG:
