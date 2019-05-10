@@ -65,6 +65,10 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_su_getType, 0, 0, 1)
 ZEND_ARG_INFO(0, param1)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_dd_count_object, 0, 0, 1)
+ZEND_ARG_INFO(0, param1)
+ZEND_END_ARG_INFO()
+
 /* Remove the following function when you have successfully modified config.m4
    so that your module can be compiled into PHP, it exists only for testing
    purposes. */
@@ -96,12 +100,63 @@ PHP_FUNCTION(confirm_su_dd_compiled)
 */
 static double php_su_test(double f)
 {
+
 	return ((double)5 / 9) * (double)(f - 32);
 }
 
 static double php_su_test_reverse(double c)
 {
 	return c * ((double)9 / 5) + 32;
+}
+
+// 统计对象的计数
+static void php_dd_count_object()
+{
+}
+
+PHP_FUNCTION(dd_count_object)
+{
+	zval *obj1;
+	HashTable *properties;
+	zend_string *key;
+	zend_object *zobj;
+	zend_ulong num_key;
+	zval *value;
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+	Z_PARAM_OBJECT(obj1)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (Z_OBJ_HT_P(obj1)->get_properties == NULL)
+	{
+		RETURN_FALSE;
+	}
+
+	properties = Z_OBJ_HT_P(obj1)->get_properties(obj1);
+	if (properties == NULL)
+	{
+		RETURN_FALSE;
+	}
+	zobj = Z_OBJ_P(obj1);
+
+	array_init_size(return_value, zend_hash_num_elements(properties));
+	ZEND_HASH_FOREACH_KEY_VAL(properties, num_key, key, value)
+	{
+		// value = Z_REFVAL_P(value);
+		// Z_TRY_ADDREF_P(value);
+		// php_printf("####:\n %s\n", value);
+		if (Z_TYPE_P(value) == IS_STRING)
+		{
+			php_write(Z_STRVAL_P(value), Z_STRLEN_P(value));
+		}
+		else
+		{
+			printf("the index is %s;type value is:%d \n", num_key, Z_TYPE_P(value));
+			printf("unknow \n");
+		}
+	}
+	ZEND_HASH_FOREACH_END();
+	return;
 }
 
 PHP_FUNCTION(temperature_converter)
@@ -118,10 +173,12 @@ PHP_FUNCTION(temperature_converter)
 PHP_FUNCTION(su_test)
 {
 	double f;
+
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "d", &f) == FAILURE)
 	{
 		return;
 	}
+
 	RETURN_DOUBLE(php_su_test(f));
 }
 
@@ -148,7 +205,7 @@ PHP_FUNCTION(su_getType)
 	case IS_NULL:
 		php_printf("null\n");
 		break;
-	case IS_TRUE://布尔值的判断需要分为IS_TRUE 和IS_FALSE
+	case IS_TRUE: //布尔值的判断需要分为IS_TRUE 和IS_FALSE
 		php_printf("bool:%s\n", Z_LVAL_P(param1) ? "true" : "false");
 		break;
 	case IS_FALSE:
@@ -257,28 +314,29 @@ PHP_MINFO_FUNCTION(su_dd)
  * Every user visible function must have an entry in su_dd_functions[].
  */
 const zend_function_entry su_dd_functions[] = {
-	PHP_FE(confirm_su_dd_compiled, NULL)						 /* For testing, remove later. */
-	PHP_FE(su_test, arginfo_su_test)							 /* */
-	PHP_FE(su_test_reverse, arginfo_su_test_reverse)			 /* */
-	PHP_FE(temperature_converter, arginfo_temperature_converter) /* */
-	PHP_FE(su_getType, arginfo_su_getType)						 /* */
-	PHP_FE_END													 /* Must be the last line in su_dd_functions[] */
+		PHP_FE(confirm_su_dd_compiled, NULL)												 /* For testing, remove later. */
+		PHP_FE(su_test, arginfo_su_test)														 /* */
+		PHP_FE(su_test_reverse, arginfo_su_test_reverse)						 /* */
+		PHP_FE(temperature_converter, arginfo_temperature_converter) /* */
+		PHP_FE(su_getType, arginfo_su_getType)											 /* */
+		PHP_FE(dd_count_object, arginfo_dd_count_object)
+				PHP_FE_END /* Must be the last line in su_dd_functions[] */
 };
 /* }}} */
 
 /* {{{ su_dd_module_entry
  */
 zend_module_entry su_dd_module_entry = {
-	STANDARD_MODULE_HEADER,
-	"su_dd",
-	su_dd_functions,
-	PHP_MINIT(su_dd),
-	PHP_MSHUTDOWN(su_dd),
-	PHP_RINIT(su_dd),	 /* Replace with NULL if there's nothing to do at request start */
-	PHP_RSHUTDOWN(su_dd), /* Replace with NULL if there's nothing to do at request end */
-	PHP_MINFO(su_dd),
-	PHP_SU_DD_VERSION,
-	STANDARD_MODULE_PROPERTIES};
+		STANDARD_MODULE_HEADER,
+		"su_dd",
+		su_dd_functions,
+		PHP_MINIT(su_dd),
+		PHP_MSHUTDOWN(su_dd),
+		PHP_RINIT(su_dd),			/* Replace with NULL if there's nothing to do at request start */
+		PHP_RSHUTDOWN(su_dd), /* Replace with NULL if there's nothing to do at request end */
+		PHP_MINFO(su_dd),
+		PHP_SU_DD_VERSION,
+		STANDARD_MODULE_PROPERTIES};
 /* }}} */
 
 #ifdef COMPILE_DL_SU_DD
