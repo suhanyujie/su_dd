@@ -122,40 +122,21 @@ PHP_FUNCTION(dd_count_object)
 	zend_object *zobj;
 	zend_ulong num_key;
 	zval *value;
-
+	// 声明一个字符指针
+	// char s1[6] = {'h','e','l','l','o','\0'};
+	char s1[] = "hello";
+	// 声明一个字符串指针
+	zend_string *str1;
+	// 参数解析
 	ZEND_PARSE_PARAMETERS_START(1, 1)
-	Z_PARAM_OBJECT(obj1)
+	Z_PARAM_STR(str1);
 	ZEND_PARSE_PARAMETERS_END();
-
-	if (Z_OBJ_HT_P(obj1)->get_properties == NULL)
-	{
-		RETURN_FALSE;
-	}
-
-	properties = Z_OBJ_HT_P(obj1)->get_properties(obj1);
-	if (properties == NULL)
-	{
-		RETURN_FALSE;
-	}
-	zobj = Z_OBJ_P(obj1);
-
-	array_init_size(return_value, zend_hash_num_elements(properties));
-	ZEND_HASH_FOREACH_KEY_VAL(properties, num_key, key, value)
-	{
-		// value = Z_REFVAL_P(value);
-		// Z_TRY_ADDREF_P(value);
-		// php_printf("####:\n %s\n", value);
-		if (Z_TYPE_P(value) == IS_STRING)
-		{
-			php_write(Z_STRVAL_P(value), Z_STRLEN_P(value));
-		}
-		else
-		{
-			printf("the index is %s;type value is:%d \n", num_key, Z_TYPE_P(value));
-			printf("unknow \n");
-		}
-	}
-	ZEND_HASH_FOREACH_END();
+	// strcat(str1->val, s1);
+	// 将字符数组初始化为一个 zend_string
+	// str1 = zend_string_init(s1, 5, 0);
+	// 返回zend_string
+	// RETURN_STR(str1);
+	RETURN_STRINGL(str1, str1->len);
 	return;
 }
 
