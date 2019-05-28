@@ -151,16 +151,54 @@ PHP_FUNCTION(temperature_converter)
 }
 
 //c实现函数 su_test
+// PHP_FUNCTION(su_test)
+// {
+// 	double f;
+
+// 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "d", &f) == FAILURE)
+// 	{
+// 		return;
+// 	}
+
+// 	RETURN_DOUBLE(php_su_test(f));
+// }
+
 PHP_FUNCTION(su_test)
 {
-	double f;
+	zend_string *str, *delim;
+	zend_long limit = ZEND_LONG_MAX; /* No limit */
+	zval tmp;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "d", &f) == FAILURE)
-	{
+	ZEND_PARSE_PARAMETERS_START(2, 3)
+		Z_PARAM_STR(delim)
+		Z_PARAM_STR(str)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_LONG(limit)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (ZSTR_LEN(delim) == 0) {
+		php_error_docref(NULL, E_WARNING, "Empty delimiter");
+		RETURN_FALSE;
+	}
+
+	array_init(return_value);
+
+	if (ZSTR_LEN(str) == 0) {
+	  	if (limit >= 0) {
+			ZVAL_EMPTY_STRING(&tmp);
+			zend_hash_index_add_new(Z_ARRVAL_P(return_value), 0, &tmp);
+		}
 		return;
 	}
 
-	RETURN_DOUBLE(php_su_test(f));
+	if (limit > 1) {
+		php_explode(delim, str, return_value, limit);
+	} else if (limit < 0) {
+		php_explode_negative_limit(delim, str, return_value, limit);
+	} else {
+		ZVAL_STR_COPY(&tmp, str);
+		zend_hash_index_add_new(Z_ARRVAL_P(return_value), 0, &tmp);
+	}
 }
 
 PHP_FUNCTION(su_test_reverse)
