@@ -150,19 +150,12 @@ PHP_FUNCTION(temperature_converter)
 	}
 }
 
+static void func_array_init()
+{
+	php_printf("debug-func_array_init\n");
+}
+
 //c实现函数 su_test
-// PHP_FUNCTION(su_test)
-// {
-// 	double f;
-
-// 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "d", &f) == FAILURE)
-// 	{
-// 		return;
-// 	}
-
-// 	RETURN_DOUBLE(php_su_test(f));
-// }
-
 PHP_FUNCTION(su_test)
 {
 	zend_string *str, *delim;
@@ -181,6 +174,7 @@ PHP_FUNCTION(su_test)
 		RETURN_FALSE;
 	}
 
+	func_array_init();
 	array_init(return_value);
 
 	if (ZSTR_LEN(str) == 0) {
