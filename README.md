@@ -1,10 +1,10 @@
 # su_dd
-* 学习写PHP扩展
+* 学习写 PHP 扩展
 
 ## 文档目录
 * [准备阶段](docs/prepare.md)
 * [参数解析](docs/参数.md)
-
+* [源码目录](docs/1.1-源码目录结构.md)
 
 ## 学习资料
 * 学习写扩展资料（英文） http://www.phpinternalsbook.com/php7/
