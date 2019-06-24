@@ -76,6 +76,115 @@ ZEND_END_ARG_INFO()
 /* Every user-visible function in PHP should document itself in the source */
 /* {{{ proto string confirm_su_dd_compiled(string arg)
    Return a string to confirm that the module is compiled in */
+
+
+static void su_php_implode(const zend_string *glue, zval *pieces, zval *return_value)
+{
+	zval         *tmp;
+	int           numelems;
+	zend_string  *str;
+	char         *cptr;
+	size_t        len = 0;
+	struct {
+		zend_string *str;
+		zend_long    lval;
+	} *strings, *ptr;
+	ALLOCA_FLAG(use_heap)
+
+	numelems = zend_hash_num_elements(Z_ARRVAL_P(pieces));
+
+	if (numelems == 0) {
+		RETURN_EMPTY_STRING();
+	} else if (numelems == 1) {
+		/* loop to search the first not undefined element... */
+		ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(pieces), tmp) {
+			RETURN_STR(zval_get_string(tmp));
+		} ZEND_HASH_FOREACH_END();
+	}
+
+	ptr = strings = do_alloca((sizeof(*strings)) * numelems, use_heap);
+
+	ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(pieces), tmp) {
+		if (EXPECTED(Z_TYPE_P(tmp) == IS_STRING)) {
+			ptr->str = Z_STR_P(tmp);
+			len += ZSTR_LEN(ptr->str);
+			ptr->lval = 0;
+			ptr++;
+		} else if (UNEXPECTED(Z_TYPE_P(tmp) == IS_LONG)) {
+			zend_long val = Z_LVAL_P(tmp);
+
+			ptr->str = NULL;
+			ptr->lval = val;
+			ptr++;
+			if (val <= 0) {
+				len++;
+			}
+			while (val) {
+				val /= 10;
+				len++;
+			}
+		} else {
+			ptr->str = zval_get_string_func(tmp);
+			len += ZSTR_LEN(ptr->str);
+			ptr->lval = 1;
+			ptr++;
+		}
+	} ZEND_HASH_FOREACH_END();
+
+	/* numelems can not be 0, we checked above */
+	str = zend_string_safe_alloc(numelems - 1, ZSTR_LEN(glue), len, 0);
+	cptr = ZSTR_VAL(str) + ZSTR_LEN(str);
+	*cptr = 0;
+
+	while (1) {
+		ptr--;
+		if (EXPECTED(ptr->str)) {
+			cptr -= ZSTR_LEN(ptr->str);
+			memcpy(cptr, ZSTR_VAL(ptr->str), ZSTR_LEN(ptr->str));
+			if (ptr->lval) {
+				zend_string_release_ex(ptr->str, 0);
+			}
+		} else {
+			char *oldPtr = cptr;
+			char oldVal = *cptr;
+			cptr = zend_print_long_to_buf(cptr, ptr->lval);
+			*oldPtr = oldVal;
+		}
+
+		if (ptr == strings) {
+			break;
+		}
+
+		cptr -= ZSTR_LEN(glue);
+		memcpy(cptr, ZSTR_VAL(glue), ZSTR_LEN(glue));
+	}
+
+	free_alloca(strings, use_heap);
+	RETURN_NEW_STR(str);
+}
+
+//c实现函数 su_test
+PHP_FUNCTION(su_test)
+{
+	zend_string *str, *glue, *tmp_glue;
+	zend_long limit = ZEND_LONG_MAX; /* No limit */
+	zval tmp;
+	zval *arg1, *arg2 = NULL, *pieces;
+
+	ZEND_PARSE_PARAMETERS_START(1, 2)
+		Z_PARAM_ZVAL(arg1)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_ZVAL(arg2)
+	ZEND_PARSE_PARAMETERS_END();
+	glue = zval_get_tmp_string(arg1, &tmp_glue);
+	pieces = arg2;
+	// 1*2 + 10
+	str = zend_string_safe_alloc(1, 2, 10, 0);
+
+	// str = su_php_implode();
+	su_php_implode(glue, pieces, return_value);
+}
+
 //c实现函数 confirm_su_dd_compiled
 PHP_FUNCTION(confirm_su_dd_compiled)
 {
@@ -153,46 +262,6 @@ PHP_FUNCTION(temperature_converter)
 static void func_array_init()
 {
 	php_printf("debug-func_array_init\n");
-}
-
-//c实现函数 su_test
-PHP_FUNCTION(su_test)
-{
-	zend_string *str, *delim;
-	zend_long limit = ZEND_LONG_MAX; /* No limit */
-	zval tmp;
-
-	ZEND_PARSE_PARAMETERS_START(2, 3)
-		Z_PARAM_STR(delim)
-		Z_PARAM_STR(str)
-		Z_PARAM_OPTIONAL
-		Z_PARAM_LONG(limit)
-	ZEND_PARSE_PARAMETERS_END();
-
-	if (ZSTR_LEN(delim) == 0) {
-		php_error_docref(NULL, E_WARNING, "Empty delimiter");
-		RETURN_FALSE;
-	}
-
-	func_array_init();
-	array_init(return_value);
-
-	if (ZSTR_LEN(str) == 0) {
-	  	if (limit >= 0) {
-			ZVAL_EMPTY_STRING(&tmp);
-			zend_hash_index_add_new(Z_ARRVAL_P(return_value), 0, &tmp);
-		}
-		return;
-	}
-
-	if (limit > 1) {
-		php_explode(delim, str, return_value, limit);
-	} else if (limit < 0) {
-		php_explode_negative_limit(delim, str, return_value, limit);
-	} else {
-		ZVAL_STR_COPY(&tmp, str);
-		zend_hash_index_add_new(Z_ARRVAL_P(return_value), 0, &tmp);
-	}
 }
 
 PHP_FUNCTION(su_test_reverse)
