@@ -215,7 +215,7 @@ static void su_php_implode(const zend_string *glue, zval *pieces, zval *return_v
 			cptr = ZSTR_VAL(ptr->str);
 			zend_string* str2 = origin_php_implode(glue, tmp, tmp_val);
 			ptr->str = str2;
-			// 此时，要拿到 tmp_str 存储的字符串长度
+			// 此时，要拿到字符串长度
 			len += ZSTR_LEN(str2);
 			ptr++;
 		} else {
