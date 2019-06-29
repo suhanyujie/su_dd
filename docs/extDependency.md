@@ -65,5 +65,39 @@ zend_module_entry s2_module_entry = {
 
 * `php_su_dd.h` 就是被依赖扩展 b 的头文件。引入它，你的扩展就能正常调用扩展 b 的函数了。
 
+### 扩展之间的调用
+#### 扩展函数的调用
+* 所谓“扩展函数”，在这里指的是你要暴露给 PHP 用户层的函数，形如：
+
+```c
+PHP_FUNCTION(confirm_su_dd_compiled)
+{
+    //  todo 
+}
+```
+
+* 假设此处的 confirm_su_dd_compiled 是你在扩展 b 中的某个函数名，如今你要在扩展 a 中调用这个扩展函数，可以如下调用：
+
+```c
+zif_confirm_su_dd_compiled(INTERNAL_FUNCTION_PARAM_PASSTHRU);
+```
+
+* 按照海龙老师博客中所讲，zif_confirm_su_dd_compiled 是 `PHP_FUNCTION(confirm_su_dd_compiled)` 展开后的名称。而宏 `INTERNAL_FUNCTION_PARAM_PASSTHRU` 则表示 PHP 用户层传入的参数原样传给 `zif_confirm_su_dd_compiled`。
+
+#### 静态函数的调用
+* 此处的静态函数指的是那些按照 c 语言语法声明的函数。这种函数可以直接在扩展 a 中调用，就像调用本地函数一样调用即可。例如下方的一个 c 函数：
+
+```c
+double php_su_test(double f)
+{
+	return (double)f;
+}
+
+// xxx.h 头文件中
+double php_su_test(double f);
+```
+
+* 在对应的 `.h` 头文件中声明过即可进行调用。
+
 ## 参考资料
 * [php7 扩展开发之依赖其他扩展](https://www.bo56.com/php7%e6%89%a9%e5%b1%95%e5%bc%80%e5%8f%91%e4%b9%8b%e4%be%9d%e8%b5%96%e5%85%b6%e4%bb%96%e6%89%a9%e5%b1%95/
