@@ -89,6 +89,7 @@ PHP_FUNCTION(confirm_su_dd_compiled)
 	}
 
 	strg = strpprintf(0, "Congratulations! You have successfully modified ext/%.78s/config.m4. Module %.78s is now compiled into PHP.", "su_dd", arg);
+	php_printf("The extension %s is loaded and working!\r\n", strg->val);
 
 	RETURN_STR(strg);
 }
@@ -98,10 +99,9 @@ PHP_FUNCTION(confirm_su_dd_compiled)
    function definition, where the functions purpose is also documented. Please
    follow this convention for the convenience of others editing your code.
 */
-static double php_su_test(double f)
+double php_su_test(double f)
 {
-
-	return ((double)5 / 9) * (double)(f - 32);
+	return f + 1.01;
 }
 
 static double php_su_test_reverse(double c)
