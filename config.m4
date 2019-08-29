@@ -1,3 +1,6 @@
+dnl 新加内容，用于将该插件的头文件放入 php/include/ext/ 对应的目录中
+PHP_INSTALL_HEADERS(ext/su_dd, [php_su_dd.h])
+
 dnl $Id$
 dnl config.m4 for extension su_dd
 
@@ -19,6 +22,7 @@ dnl [  --enable-su_dd           Enable su_dd support])
 
 PHP_ARG_ENABLE(su_dd, whether to enable su_dd support,
 [  --enable-su_dd           Enable su_dd support])
+
 
 if test "$PHP_SU_DD" != "no"; then
   dnl Write more examples of tests here...

@@ -38,9 +38,18 @@ extern zend_module_entry su_dd_module_entry;
 #include "TSRM.h"
 #endif
 
+/*
+// 被依赖的扩展的头文件中定义的类型可以被扩展 a 所调用
+// 类型定义
+*/
+typedef struct Student {
+  int age;
+  char* name;
+} Stu;
+
+double php_su_test(double f);
+
 PHP_FUNCTION(su_test);
-
-
 
 /*
   	Declare any global variables you may need between the BEGIN
@@ -61,6 +70,8 @@ ZEND_END_MODULE_GLOBALS(su_dd)
 #if defined(ZTS) && defined(COMPILE_DL_SU_DD)
 ZEND_TSRMLS_CACHE_EXTERN()
 #endif
+
+PHP_FUNCTION(confirm_su_dd_compiled);
 
 #endif	/* PHP_SU_DD_H */
 
